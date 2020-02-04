@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>俱乐部列表展示</title>
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/clubContent.js"></script>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrapdatepicker/css/bootstrap-datepicker.min.css">
+    <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/bootstrapdatepicker/js/bootstrap-datepicker.min.js"></script>
+    <script type="text/javascript" src="/bootstrapdatepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#myModal").on("hidden.bs.modal", function () {
+                $(this).removeData("bs.modal");
+            });
+            $("#myDate").datepicker({
+                language: "zh-CN",
+                clearBtn: true,
+                autoclose: true,
+                todayHighlight: true,
+                format: 'yyyy-mm-dd',
+                todayBtn: true,
+                startDate: '1990-01-01',
+                endDate: '2050-12-30'
+            })
+        });
+    </script>
+</head>
+<body>
+<button class="btn btn-primary" data-toggle="modal" data-target="#myModal"
+        style="width: 93px;margin: 10px 10px 0px 10px;">新增
+</button>
+<div hidden id="addTips" class="alert" style="text-align: center;"></div>
+<div hidden id="updateTips" class="alert" style="text-align: center;"></div>
+<div hidden id="deleteTips" class="alert" style="text-align: center;"></div>
+<table class="table table-bordered" border="1" style="width:900px;margin: 10px;">
+    <thead>
+    <tr>
+        <th>俱乐部名称</th>
+        <th>俱乐部负责人</th>
+        <th>俱乐部类型</th>
+        <th>创建时间</th>
+        <th>活动次数</th>
+        <th>会员数量</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="club : ${Club}">
+        <td hidden th:text="${club.id}"></td>
+        <td th:text="${club.name}"></td>
+        <td th:text="${club.manager}"></td>
+        <td th:if="${club.type == 1 }" th:text="足球"></td>
+        <td th:if="${club.type == 2 }" th:text="羽毛球"></td>
+        <td th:if="${club.type == 3 }" th:text="篮球"></td>
+        <td th:if="${club.type == 4 }" th:text="乒乓球"></td>
+        <td th:text="${club.createDate}"></td>
+        <td th:text="${club.activitytimes}"></td>
+        <td th:text="${club.membercount}"></td>
+        <td th:if="${club.membercount > 0}"><a data-toggle="modal" data-target="#myModal2"
+                                               onclick="openUpdateWindow(this)">修改 </a><a
+                href="javascript:return false;" onclick="return false;" style="cursor: default;opacity: 0.2;">删除</a>
+        </td>
+        <td th:if="${club.membercount == 0}"><a data-toggle="modal" data-target="#myModal2"
+                                                onclick="openUpdateWindow(this)">修改 </a><a
+                onclick="deleteClub(this)">删除</a></td>
+        <td hidden th:text="${club.remarks}"></td>
+    </tr>
+    </tbody>
+</table>
+<!--新增界面 -->
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-hidden="true">×
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    新增
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" id="addClubForm" th:action="@{/addClub}"
+                      th:object="${clubInfo}"
+                      method="post">
+                    <div class="form-group">
+                        <label for="name" class="col-sm-3 control-label">俱乐部名称：</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="name" name="name"
+                            ><span class="help-block" id="name_tips" style="display: none;color: red;">你输入的信息是正确的</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="manager" class="col-sm-3 control-label">俱乐部负责人：</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="manager" name="manager"
+                            ><span class="help-block" id="manager_tips" style="display: none;color: red;">你输入的信息是正确的</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="createDate" class="col-sm-3 control-label">创建时间：</label>
+                        <div class="col-sm-9 input-group date" id="myDate"
+                             style="padding-left: 15px;padding-right: 15px;">
+                            <div class=" input-group "><input type="text" class="form-control" id="createDate" name="createDate" readonly>
+                            <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span></div><span class="help-block" id="createDate_tips" style="display: none;color: red;">你输入的信息是正确的</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="type" class="col-sm-3 control-label">俱乐部类型：</label>
+                        <div class="col-sm-9"><select class="form-control" id="type" name="type">
+                            <option value="1">足球</option>
+                            <option value="2">羽毛球</option>
+                            <option value="3">篮球</option>
+                            <option value="4">乒乓球</option>
+                        </select></div><span class="help-block" id="type_tips" style="display: none;color: red;">你输入的信息是正确的</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="activitytimes" class="col-sm-3 control-label">活动次数：</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="activitytimes">
+                            <span class="help-block" id="activitytimes_tips" style="display: none;color: red;">你输入的信息是正确的</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="membercount" class="col-sm-3 control-label">会员数量：</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="membercount" name="membercount">
+                            <span class="help-block" id="membercount_tips"
+                                  style="display: none;color: red;">你输入的信息是正确的</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="remarks" class="col-sm-3 control-label">备注：</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="remarks" name="remarks">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="addClub()">保存</button>
+                <!--                <button type="button" class="btn btn-primary" onclick="addClub()">保存</button>-->
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!--修改界面 -->
+<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-hidden="true">×
+                </button>
+                <h4 class="modal-title" id="myModalLabel2">
+                    修改
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" id="updateClubForm" th:action="@{/updateClub}"
+                      th:object="${club}" method="post">
+                    <input hidden id="id2">
+                    <div class="form-group">
+                        <label for="name" class="col-sm-3 control-label">俱乐部名称：</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="name2"
+                            ><span class="help-block" id="name_tips2" style="display: none;color: red;">你输入的信息是正确的</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="manager" class="col-sm-3 control-label">俱乐部负责人：</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="manager2"
+                            ><span class="help-block" id="manager_tips2" style="display: none;color: red;">你输入的信息是正确的</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="createDate" class="col-sm-3 control-label">创建时间：</label>
+                        <div class="col-sm-9 input-group date" id="myDate2"
+                             style="padding-left: 15px;padding-right: 15px;">
+                            <input disabled="disabled" type="text" class="form-control" id="createDate2">
+                            <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="type" class="col-sm-3 control-label">俱乐部类型：</label>
+                        <div class="col-sm-9"><select disabled="disabled" class="form-control" id="type2">
+                            <option value="1">足球</option>
+                            <option value="2">羽毛球</option>
+                            <option value="3">篮球</option>
+                            <option value="4">乒乓球</option>
+                        </select></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="activitytimes" class="col-sm-3 control-label">活动次数：</label>
+                        <div class="col-sm-9">
+                            <input disabled="disabled" type="text" class="form-control" id="activitytimes2">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="membercount" class="col-sm-3 control-label">会员数量：</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="membercount2">
+                            <span class="help-block" id="membercount_tips2"
+                                  style="display: none;color: red;">你输入的信息是正确的</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="remarks" class="col-sm-3 control-label">备注：</label>
+                        <div class="col-sm-9">
+                            <input disabled="disabled" type="text" class="form-control" id="remarks2">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="updateClub()">保存</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+</body>
+</html>

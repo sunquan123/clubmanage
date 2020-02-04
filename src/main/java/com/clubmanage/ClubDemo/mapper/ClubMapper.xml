@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clubmanage.ClubDemo.mapper.ClubMapper">
+    <insert id="addClub" parameterType="Club">
+        INSERT INTO Club(name,manager,type,createDate,activitytimes,membercount)
+        VALUE (#{name},#{manager},#{type},#{createDate},#{activitytimes},#{membercount})
+    </insert>
+    <select id="findClubById" resultType="Club">
+        select id,name,manager,type,createDate,activitytimes,membercount from Club where id=#{value}
+    </select>
+    <select id="findClubByName" resultType="Club">
+        select * from Club where name=#{value}
+    </select>
+    <select id="selectClubAll" resultType="Club">
+        SELECT id,name,manager,type,createDate,activitytimes,membercount,remarks from Club
+    </select>
+    <update id="updateClub">
+        update Club set name=#{name},manager=#{manager},membercount=#{membercount} where id=#{id}
+    </update>
+    <delete id="deleteClub">
+        delete from Club where id=#{value}
+    </delete>
+</mapper>
